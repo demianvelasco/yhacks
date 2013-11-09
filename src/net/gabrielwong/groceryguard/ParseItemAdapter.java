@@ -1,15 +1,12 @@
 package net.gabrielwong.groceryguard;
 
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +21,17 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 	private final Context context;
 	private final ParseObject[] values;
 	private final HashMap<Integer, ParseObject> objMap;
+	private final HashMap<Integer, AsyncTask<String, Integer, Drawable>> imgMap;
 	
 	private static final String TAG = "ParseItemAdapter";
 
-	public ParseItemAdapter(Context context, ParseObject[] values, HashMap<Integer, ParseObject> objMap) {
+	public ParseItemAdapter(Context context, ParseObject[] values, HashMap<Integer, ParseObject> objMap,
+			HashMap<Integer, AsyncTask<String, Integer, Drawable>> imgMap) {
 		super(context, R.layout.view_item, values);
 		this.context = context;
 		this.values = values;
 		this.objMap = objMap;
+		this.imgMap = imgMap;
 	}
 
 	@Override
@@ -47,47 +47,23 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		String name = obj.getString(MainActivity.ITEM_NAME);
 		textView.setText(name);
 
-		String imagePath = obj.getString(MainActivity.IMAGE_LINK);
-		if (imagePath != null){
-			Drawable image = null;
-			AsyncTask<String, Integer, Drawable> task = new RetrieveImageTask().execute(imagePath);
-			try {
+		Drawable image = null;
+		try {
+			AsyncTask<String, Integer, Drawable> task = imgMap.get(values[position].getInt(MainActivity.PLU));
+			if (task != null)
 				image = task.get();
-				if (imagePath != null)
-					imageView.setImageDrawable(image);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
 		}
+		
+		if (image != null)
+			imageView.setImageDrawable(image);
 
 		return rowView;
 	}
 	
-	class RetrieveImageTask extends AsyncTask<String, Integer, Drawable>{
-
-		@Override
-		protected Drawable doInBackground(String... urls) {
-			URL url;
-			try {
-				url = new URL(urls[0]);
-			} catch (MalformedURLException e1) {
-				return null;
-			}
-			try {
-				InputStream is = (InputStream) url.getContent();
-				Drawable d = Drawable.createFromStream(is, "src name");
-				Log.v(TAG, "Picture loaded from " + url);
-				return d;
-			} catch (Exception e) {
-				Log.e(TAG, e.getClass().getSimpleName());
-				return null;
-			}
-		}
-		
-	}
+	
 
 }

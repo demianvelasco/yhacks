@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -307,7 +308,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 					public void done(List<ParseObject> infoValues, ParseException e) {
 						if (e != null)
 							return;
-						HashMap<Integer,ParseObject> objMap = new HashMap<Integer,ParseObject>();
+						HashMap<Integer, ParseObject> objMap = new HashMap<Integer, ParseObject>();
 						for (ParseObject obj : infoValues){
 							objMap.put(obj.getInt(PLU), obj);
 						}
