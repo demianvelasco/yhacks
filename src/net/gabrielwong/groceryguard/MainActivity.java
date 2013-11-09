@@ -309,12 +309,24 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 						if (e != null)
 							return;
 						HashMap<Integer, ParseObject> objMap = new HashMap<Integer, ParseObject>();
+						
+						HashMap<Integer, ParseObject> oldMap = mItemsFragment.getObjMap();
+						boolean shouldUpdate = (oldMap == null);
 						for (ParseObject obj : infoValues){
-							objMap.put(obj.getInt(PLU), obj);
+							int plu = obj.getInt(PLU);
+							if (!shouldUpdate){
+								if (oldMap.get(plu) == null)
+									shouldUpdate = true;
+							}
+							objMap.put(plu, obj);
 						}
-						ParseObject[] items = inventoryValues.toArray(new ParseObject[inventoryValues.size()]);
+						
 						switchToFragment(mItemsFragment, true);
-						mItemsFragment.setItems(items, objMap);
+						
+						if (shouldUpdate){
+							ParseObject[] items = inventoryValues.toArray(new ParseObject[inventoryValues.size()]);
+							mItemsFragment.setItems(items, objMap);
+						}
 					}
 
 				});

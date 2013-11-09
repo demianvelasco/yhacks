@@ -51,6 +51,10 @@ public class ItemsFragment extends ListFragment {
 		}
 	}
 	
+	public HashMap<Integer, ParseObject> getObjMap(){
+		return objMap;
+	}
+	
 	class RetrieveImageTask extends AsyncTask<String, Integer, Drawable>{
 
 		@Override
