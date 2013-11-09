@@ -1,5 +1,6 @@
 package net.gabrielwong.groceryguard;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -42,14 +43,17 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.view_item, parent, false);
+		
 		TextView textView = (TextView) rowView.findViewById(R.id.item_name);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.item_picture);
 		ImageButton clearButton = (ImageButton) rowView.findViewById(R.id.clear_button);
+		TextView timeLeft = (TextView) rowView.findViewById(R.id.time_left);
 
 		ParseObject obj = objMap.get(values[position].getInt(MainActivity.PLU));
 
 		String name = obj.getString(MainActivity.ITEM_NAME);
 		textView.setText(name);
+		timeLeft.setText(getDaysLeft(values[position])+"d");
 		
 		clearButton.setOnClickListener(mItemsFragment);
 		textView.setOnClickListener(mItemsFragment);
@@ -71,5 +75,11 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		return rowView;
 	}
 	
-
+	private int getDaysLeft(ParseObject obj){
+		Date expiry = obj.getDate(MainActivity.DATE_EXPIRING);
+		Date now = new Date();
+		
+		long millisLeft = expiry.getTime() - now.getTime();
+		return (int)((millisLeft + MainActivity.MILLIS_IN_DAY / 2) / MainActivity.MILLIS_IN_DAY);
+	}
 }

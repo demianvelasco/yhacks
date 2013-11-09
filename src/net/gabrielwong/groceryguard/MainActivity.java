@@ -10,6 +10,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,6 +24,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.googlecode.leptonica.android.Binarize;
@@ -56,7 +58,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 			PRODUCE_LIST_DB = "produceList",
 			INVENTORY_DB = "Inventory";
 
-	private static final long MILLIS_IN_DAY = 86400000L;
+	public static final long MILLIS_IN_DAY = 86400000L;
 	
 	private List<ParseObject> inventory = null;
 
@@ -348,5 +350,20 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 	public void onItemPressed(int position) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void onBackPressed(){
+		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 0)
+			fm.popBackStack();
+		else
+			super.onBackPressed();
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		onBackPressed();
+		return true;
 	}
 }

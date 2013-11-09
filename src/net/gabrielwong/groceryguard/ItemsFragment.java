@@ -6,12 +6,15 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -46,6 +49,11 @@ public class ItemsFragment extends ListFragment implements OnClickListener{
 					+ " must implement OnFragmentInteractionListener");
 		}
 		reloadList(activity);
+	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
 	}
 	
 	public void reloadList(Activity activity){
