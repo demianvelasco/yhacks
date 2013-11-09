@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,7 +44,7 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		View rowView = inflater.inflate(R.layout.view_item, parent, false);
 		TextView textView = (TextView) rowView.findViewById(R.id.item_name);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.item_picture);
-		Button clearButton = (Button) rowView.findViewById(R.id.clear_button);
+		ImageButton clearButton = (ImageButton) rowView.findViewById(R.id.clear_button);
 
 		ParseObject obj = objMap.get(values[position].getInt(MainActivity.PLU));
 
