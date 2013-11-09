@@ -6,5 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="camera_button">Take a photo</string>
     <string name="instructions">Take a picture</string>
+    <string name="scan_button">Scan</string>
+    <string name="items_button">Items</string>
 
 </resources>

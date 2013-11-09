@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,9 +21,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.googlecode.leptonica.android.Binarize;
@@ -36,9 +35,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import eu.janmuller.android.simplecropimage.CropImage;
-
-public class MainActivity extends Activity implements OnClickListener{
+public class MainActivity extends Activity implements MainMenuFragment.Listener{
 	
 	private static final String TAG = "MainActivity";
 	
@@ -53,6 +50,9 @@ public class MainActivity extends Activity implements OnClickListener{
 	public static final String lang = "eng";
 	
 	private Uri mImgUri = null;
+	
+	private MainMenuFragment mMainMenuFragment = null;
+	private ItemsFragment mItemsFragment = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +61,12 @@ public class MainActivity extends Activity implements OnClickListener{
 		
 		 Parse.initialize(this, "XeSyqoRxoRPE7t1xhs8cQQTKFjnVizRQJj53PdMf", "UEPNUKWiPgoUmJmsE7JEbcRCAH0ddcmYluyTs7dy"); 
 		 ParseAnalytics.trackAppOpened(getIntent());
-		
-		// button for camera
-		final Button button = (Button) findViewById(R.id.cameraButton);
-        button.setOnClickListener(this);
-	}	
-	
+		 
+		 mMainMenuFragment = new MainMenuFragment();
+		 mItemsFragment = new ItemsFragment();
+		 
+		 switchToFragment(mMainMenuFragment, false);
+	}		
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,7 +75,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		return true;
 	}
 	
-	public void onCameraButton(){
+	public void onScanButton(){
 		Log.v(TAG, "Starting camera intent");
 		// Open up the camera
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -97,10 +97,6 @@ public class MainActivity extends Activity implements OnClickListener{
 				// Capture failed
 				// Image captured and saved to fileUri specified in the Intent
 	            Toast.makeText(this, "Image capture failed.", Toast.LENGTH_LONG).show();
-			}
-		} else if (requestCode == RC_CROP){
-			if (resultCode == RESULT_OK){
-				onPhotoTaken();
 			}
 		}
 	}
@@ -148,19 +144,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		String text = analyzeImage();
 		parseText(text);
 	}
-	
-	private void cropImage(){
-		Intent intent = new Intent(this, CropImage.class);
-		
-		String path = mImgUri.getPath();
-		intent.putExtra(CropImage.IMAGE_PATH, path);
-		intent.putExtra(CropImage.SCALE, true); // Allow rescaling
-		intent.putExtra(CropImage.ASPECT_X, 4);
-	    intent.putExtra(CropImage.ASPECT_Y, 3);
-		startActivityForResult(intent, RC_CROP);
-		
-	}
-	
+
 	protected String analyzeImage(){
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = 4;
@@ -242,12 +226,11 @@ public class MainActivity extends Activity implements OnClickListener{
 		Log.v(TAG, "Parsing text");
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("produceList"); // Query produceList class
 		ArrayList<Integer> plu = new ArrayList<Integer>();
-		String[] words = text.split("[ \n]");
+		String[] words = text.split("[() \n]");
 		for (String s : words){
 			if (s.length() == 4){
 				try{
 					plu.add(Integer.parseInt(s));
-					Log.v(TAG, "Adding int: " + s);
 				} catch(NumberFormatException e){}
 			}
 		}
@@ -258,15 +241,23 @@ public class MainActivity extends Activity implements OnClickListener{
 			        e.printStackTrace();
 			      } else {
 			    	  for (ParseObject obj : results){
-			    		  Log.v(TAG, "PLU: " + Integer.toString(obj.getInt("plu")));
+			    		  Log.v(TAG, obj.getString("commodity"));
 			    	  }
 			      }
 			}
 		});
 	}
-	
-	public void onClick(View v) {
-        // Perform action on click
-    	onCameraButton();
-    }
+
+	private void switchToFragment(Fragment newFrag, boolean addToBackStack){
+		FragmentTransaction transaction = getFragmentManager().beginTransaction();
+		transaction.replace(R.id.fragment_container, newFrag);
+		if (addToBackStack)
+			transaction.addToBackStack(null);
+		transaction.commit();
+	}
+
+	@Override
+	public void onItemsButton() {
+		switchToFragment(mItemsFragment, true);
+	}
 }
