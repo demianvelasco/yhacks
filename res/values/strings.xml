@@ -8,5 +8,30 @@
     <string name="instructions">Take a picture</string>
     <string name="scan_button">Scan</string>
     <string name="items_button">Your Groceries</string>
+    <string name="pref_red_threshold">Red Threshold</string>
+    <string name="summary_red_threshold">Items turn red a set number of days before expiry.</string>
+    <string name="pref_orange_threshold">Orange Threshold</string>
+    <string name="summary_orange_threshold">Items turn orange a set number of days before expiry.</string>
+    <string name="title_day_selector">Number of Days</string>
+
+    <string-array name="day_selector_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+    </string-array>
+
+    <string name="settings">Settings</string>
 
 </resources>

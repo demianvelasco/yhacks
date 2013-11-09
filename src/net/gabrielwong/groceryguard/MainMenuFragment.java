@@ -20,6 +20,7 @@ public class MainMenuFragment extends Fragment implements OnClickListener{
 	public interface Listener {
 		public void onScanButton();
 		public void onItemsButton();
+		public void onSettingsButton();
 	}
 
 	public MainMenuFragment() {
@@ -39,6 +40,7 @@ public class MainMenuFragment extends Fragment implements OnClickListener{
 		
 		v.findViewById(R.id.scan_button).setOnClickListener(this);
 	    v.findViewById(R.id.items_button).setOnClickListener(this);
+	    v.findViewById(R.id.settings_button).setOnClickListener(this);
 	    
 	    return v;
 	}
@@ -68,6 +70,9 @@ public class MainMenuFragment extends Fragment implements OnClickListener{
 			break;
 		case R.id.items_button:
 			mListener.onItemsButton();
+			break;
+		case R.id.settings_button:
+			mListener.onSettingsButton();
 			break;
 		}
 	}

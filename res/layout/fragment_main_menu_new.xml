@@ -27,6 +27,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="54dp"
         android:text="@string/items_button" />
+    
+    <Button
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/settings" />
 
     <TextView
         android:id="@+id/textView1"

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="red_threshold"
+        android:title="@string/pref_red_threshold"
+        android:summary="@string/summary_red_threshold"
+        android:dialogTitle="@string/title_day_selector"
+        android:entries="@array/day_selector_entries"
+        android:entryValues="@array/day_selector_entries"
+        android:defaultValue="2"/>
+    
+    <ListPreference
+        android:key="orange_threshold"
+        android:title="@string/pref_orange_threshold"
+        android:summary="@string/summary_orange_threshold"
+        android:dialogTitle="@string/title_day_selector"
+        android:entries="@array/day_selector_entries"
+        android:entryValues="@array/day_selector_entries"
+        android:defaultValue="4"/>        
+</PreferenceScreen>

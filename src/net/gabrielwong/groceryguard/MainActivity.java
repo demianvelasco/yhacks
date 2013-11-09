@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 
 	private MainMenuFragment mMainMenuFragment = null;
 	private ItemsFragment mItemsFragment = null;
+	private SettingsFragment mSettingsFragment = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 
 		mMainMenuFragment = new MainMenuFragment();
 		mItemsFragment = new ItemsFragment();
+		mSettingsFragment = new SettingsFragment();
 
 		switchToFragment(mMainMenuFragment, false);
 	}		
@@ -263,7 +265,6 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 						Log.v(TAG, obj.getString(ITEM_NAME));
 						ParseObject item = new ParseObject(INVENTORY_DB);
 						item.put(PLU, obj.getInt(PLU));
-						item.put(ITEM_NAME, obj.getString(ITEM_NAME));
 
 						Date currentDate = new Date();
 						item.put(DATE_ADDED, currentDate);
@@ -365,5 +366,10 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 	public boolean onOptionsItemSelected(MenuItem item){
 		onBackPressed();
 		return true;
+	}
+	
+	@Override
+	public void onSettingsButton(){
+		switchToFragment(mSettingsFragment, true);
 	}
 }

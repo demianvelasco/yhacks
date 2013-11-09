@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,10 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 	private final HashMap<Integer, ParseObject> objMap;
 	private final HashMap<Integer, AsyncTask<String, Integer, Drawable>> imgMap;
 	private final ItemsFragment mItemsFragment;
+	
+	private static final int GREEN = 0xFF33CC33,
+							 RED = 0xFFCC3333,
+							 ORANGE = 0xFFDD6D22;
 	
 	private static final String TAG = "ParseItemAdapter";
 
@@ -53,7 +58,9 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 
 		String name = obj.getString(MainActivity.ITEM_NAME);
 		textView.setText(name);
-		timeLeft.setText(getDaysLeft(values[position])+"d");
+		
+		int daysLeft = getDaysLeft(values[position]);
+		timeLeft.setText(daysLeft +"d");
 		
 		clearButton.setOnClickListener(mItemsFragment);
 		textView.setOnClickListener(mItemsFragment);
@@ -71,6 +78,8 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		
 		if (image != null)
 			imageView.setImageDrawable(image);
+		
+		timeLeft.setBackgroundColor(getColor(daysLeft));
 
 		return rowView;
 	}
@@ -81,5 +90,15 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		
 		long millisLeft = expiry.getTime() - now.getTime();
 		return (int)((millisLeft + MainActivity.MILLIS_IN_DAY / 2) / MainActivity.MILLIS_IN_DAY);
+	}
+	
+	private int getColor(int daysLeft){
+		int orangeThresh = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("orange_threshold", "4"));
+		int redThresh = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("red_threshold", "2"));
+		if (daysLeft > orangeThresh)
+			return GREEN;
+		if (daysLeft > redThresh)
+			return ORANGE;
+		return RED;
 	}
 }
