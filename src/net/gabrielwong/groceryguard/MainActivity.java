@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -36,21 +37,33 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 public class MainActivity extends Activity implements MainMenuFragment.Listener{
-	
+
 	private static final String TAG = "MainActivity";
-	
+
 	protected static final int RC_IMAGE_CAPTURE = 100,
-							   RC_CROP = 200;
+			RC_CROP = 200;
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
-	
+
+	public static final String ITEM_NAME = "commodity",
+			PLU = "plu",
+			SHELF_LIFE = "shelfLife",
+			IMAGE_LINK = "image",
+			OBJECT_ID = "objectId",
+			DATE_ADDED = "dateAdded",
+			DATE_EXPIRING = "dateExpiring",
+			PRODUCE_LIST_DB = "produceList",
+			INVENTORY_DB = "Inventory";
+
+	private static final long MILLIS_IN_DAY = 86400000L;
+
 	public static final String DATA_PATH = Environment
 			.getExternalStorageDirectory().toString() + "/GroceryCart/";
-	
+
 	public static final String lang = "eng";
-	
+
 	private Uri mImgUri = null;
-	
+
 	private MainMenuFragment mMainMenuFragment = null;
 	private ItemsFragment mItemsFragment = null;
 
@@ -58,14 +71,14 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		 Parse.initialize(this, "XeSyqoRxoRPE7t1xhs8cQQTKFjnVizRQJj53PdMf", "UEPNUKWiPgoUmJmsE7JEbcRCAH0ddcmYluyTs7dy"); 
-		 ParseAnalytics.trackAppOpened(getIntent());
-		 
-		 mMainMenuFragment = new MainMenuFragment();
-		 mItemsFragment = new ItemsFragment();
-		 
-		 switchToFragment(mMainMenuFragment, false);
+
+		Parse.initialize(this, "XeSyqoRxoRPE7t1xhs8cQQTKFjnVizRQJj53PdMf", "UEPNUKWiPgoUmJmsE7JEbcRCAH0ddcmYluyTs7dy"); 
+		ParseAnalytics.trackAppOpened(getIntent());
+
+		mMainMenuFragment = new MainMenuFragment();
+		mItemsFragment = new ItemsFragment();
+
+		switchToFragment(mMainMenuFragment, false);
 	}		
 
 	@Override
@@ -74,7 +87,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	public void onScanButton(){
 		Log.v(TAG, "Starting camera intent");
 		// Open up the camera
@@ -84,7 +97,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImgUri);
 		startActivityForResult(intent, RC_IMAGE_CAPTURE);
 	}
-	
+
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if (requestCode == RC_IMAGE_CAPTURE){
 			if (resultCode == RESULT_OK){
@@ -96,50 +109,50 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 			} else{
 				// Capture failed
 				// Image captured and saved to fileUri specified in the Intent
-	            Toast.makeText(this, "Image capture failed.", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "Image capture failed.", Toast.LENGTH_LONG).show();
 			}
 		}
 	}
-	
+
 	/** Create a file Uri for saving an image or video */
 	private static Uri getOutputMediaFileUri(int type){
-	      return Uri.fromFile(getOutputMediaFile(type));
+		return Uri.fromFile(getOutputMediaFile(type));
 	}
 
 	/** Create a File for saving an image or video */
 	private static File getOutputMediaFile(int type){
-	    // To be safe, you should check that the SDCard is mounted
-	    // using Environment.getExternalStorageState() before doing this.
+		// To be safe, you should check that the SDCard is mounted
+		// using Environment.getExternalStorageState() before doing this.
 
-	    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-	              Environment.DIRECTORY_PICTURES), "GroceryCart");
-	    // This location works best if you want the created images to be shared
-	    // between applications and persist after your app has been uninstalled.
+		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+				Environment.DIRECTORY_PICTURES), "GroceryCart");
+		// This location works best if you want the created images to be shared
+		// between applications and persist after your app has been uninstalled.
 
-	    // Create the storage directory if it does not exist
-	    if (! mediaStorageDir.exists()){
-	        if (! mediaStorageDir.mkdirs()){
-	            Log.d("MyCameraApp", "failed to create directory");
-	            return null;
-	        }
-	    }
+		// Create the storage directory if it does not exist
+		if (! mediaStorageDir.exists()){
+			if (! mediaStorageDir.mkdirs()){
+				Log.d("MyCameraApp", "failed to create directory");
+				return null;
+			}
+		}
 
-	    // Create a media file name
-	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-	    File mediaFile;
-	    if (type == MEDIA_TYPE_IMAGE){
-	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-	        "IMG_"+ timeStamp + ".jpg");
-	    } else if(type == MEDIA_TYPE_VIDEO) {
-	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-	        "VID_"+ timeStamp + ".mp4");
-	    } else {
-	        return null;
-	    }
+		// Create a media file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+		File mediaFile;
+		if (type == MEDIA_TYPE_IMAGE){
+			mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+					"IMG_"+ timeStamp + ".jpg");
+		} else if(type == MEDIA_TYPE_VIDEO) {
+			mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+					"VID_"+ timeStamp + ".mp4");
+		} else {
+			return null;
+		}
 
-	    return mediaFile;
+		return mediaFile;
 	}
-	
+
 	protected void onPhotoTaken(){
 		String text = analyzeImage();
 		parseText(text);
@@ -151,7 +164,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 
 		Bitmap bitmap = BitmapFactory.decodeFile(mImgUri.getPath(), options);
 		Log.v(TAG, mImgUri.getPath());
-		
+
 		// Rotate the picture based on exif data
 		try {
 			ExifInterface exif = new ExifInterface(mImgUri.getPath());
@@ -196,35 +209,35 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 		} catch (IOException e) {
 			Log.e(TAG, "Couldn't correct orientation: " + e.toString());
 		}
-		
+
 		Log.v(TAG, "Binarizing using Leptonica");
 		Pix pixs = ReadFile.readBitmap(bitmap);
 		pixs = Binarize.otsuAdaptiveThreshold(pixs);
 		bitmap = WriteFile.writeBitmap(pixs);
-		
+
 		// Convert to ARGB_8888, required by tess
 		bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-		
+
 		Log.v(TAG, "Calling Tessaract");
-		
+
 		Log.v(TAG, DATA_PATH);
-		
+
 		TessBaseAPI baseApi = new TessBaseAPI();
 		baseApi.setDebug(true);
 		baseApi.init(DATA_PATH, lang);
 		baseApi.setImage(bitmap);
-		
+
 		String text = baseApi.getUTF8Text();
 		Log.v(TAG, text);
-		
+
 		baseApi.end();
-		
+
 		return text;
 	}
-	
+
 	public void parseText(String text){
 		Log.v(TAG, "Parsing text");
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("produceList"); // Query produceList class
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(PRODUCE_LIST_DB); // Query produceList class
 		ArrayList<Integer> plu = new ArrayList<Integer>();
 		String[] words = text.split("[() \n]");
 		for (String s : words){
@@ -234,16 +247,29 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 				} catch(NumberFormatException e){}
 			}
 		}
-		query.whereContainedIn("plu", plu);
+		query.whereContainedIn(PLU, plu);
 		query.findInBackground(new FindCallback<ParseObject>(){
 			public void done(List<ParseObject> results, ParseException e) {
-			      if (e != null) {
-			        e.printStackTrace();
-			      } else {
-			    	  for (ParseObject obj : results){
-			    		  Log.v(TAG, obj.getString("commodity"));
-			    	  }
-			      }
+				if (e != null) {
+					e.printStackTrace();
+				} else {
+					for (ParseObject obj : results){
+						// Add to inventory
+						Log.v(TAG, obj.getString(ITEM_NAME));
+						ParseObject item = new ParseObject(INVENTORY_DB);
+						item.put(PLU, obj.getInt(PLU));
+						item.put(ITEM_NAME, obj.getString(ITEM_NAME));
+
+						Date currentDate = new Date();
+						item.put(DATE_ADDED, currentDate);
+
+						int shelfLife = obj.getInt(SHELF_LIFE);
+						Date expiringDate = new Date(currentDate.getTime() + shelfLife * MILLIS_IN_DAY);
+						item.put(DATE_EXPIRING, expiringDate);
+
+						item.saveInBackground();
+					}
+				}
 			}
 		});
 	}
@@ -258,6 +284,40 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 
 	@Override
 	public void onItemsButton() {
-		switchToFragment(mItemsFragment, true);
+		Log.v(TAG, "Items button pressed");
+		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(INVENTORY_DB);
+		
+		// Get items in inventory
+		query.findInBackground(new FindCallback<ParseObject>(){
+			@Override
+			public void done(final List<ParseObject> inventoryValues, ParseException e) {
+				Log.v(TAG, "Found " + inventoryValues.size() + " items in inventory");
+				if (e != null)
+					return;
+				ArrayList<Integer> plu = new ArrayList<Integer>();
+				for (ParseObject item : inventoryValues){
+					plu.add(item.getInt(PLU));
+				}
+				
+				// Get info on items in inventory
+				ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(PRODUCE_LIST_DB);
+				query.whereContainedIn(PLU, plu);
+				query.findInBackground(new FindCallback<ParseObject>(){
+					@Override
+					public void done(List<ParseObject> infoValues, ParseException e) {
+						if (e != null)
+							return;
+						HashMap<Integer,ParseObject> objMap = new HashMap<Integer,ParseObject>();
+						for (ParseObject obj : infoValues){
+							objMap.put(obj.getInt(PLU), obj);
+						}
+						ParseObject[] items = inventoryValues.toArray(new ParseObject[inventoryValues.size()]);
+						switchToFragment(mItemsFragment, true);
+						mItemsFragment.setItems(items, objMap);
+					}
+
+				});
+			}
+		});
 	}
 }
