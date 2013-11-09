@@ -287,7 +287,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 	public void onItemsButton() {
 		Log.v(TAG, "Items button pressed");
 		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(INVENTORY_DB);
-		
+		query.addAscendingOrder(DATE_EXPIRING);
 		// Get items in inventory
 		query.findInBackground(new FindCallback<ParseObject>(){
 			@Override

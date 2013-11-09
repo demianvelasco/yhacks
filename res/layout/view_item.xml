@@ -8,11 +8,20 @@
         android:layout_width = "40dp"
         android:layout_height = "40dp"/>
     
+    <Button
+        android:id="@+id/clear_button"
+        android:layout_width = "40dp"
+        android:layout_height = "40dp"
+        android:background = "#FFFF0000"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop = "@id/item_picture" />
+    
     <TextView
         android:id="@+id/item_name"
         android:layout_width = "fill_parent"
         android:layout_height = "40dp"
         android:layout_alignTop = "@id/item_picture"
-        android:layout_toRightOf= "@id/item_picture"/>
+        android:layout_toRightOf= "@id/item_picture"
+        android:layout_toLeftOf = "@id/clear_button"/>
     
 </RelativeLayout>
