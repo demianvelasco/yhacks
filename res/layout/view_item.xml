@@ -14,7 +14,8 @@
         android:layout_height="40dp"
         android:background="@drawable/ic_action_remove"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/item_picture" />
+        android:layout_alignTop="@id/item_picture"
+        android:focusable="false" />
     
     <TextView
         android:id="@+id/time_left"

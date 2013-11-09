@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView;
 
 import com.parse.ParseObject;
 
@@ -54,6 +55,7 @@ public class ItemsFragment extends ListFragment implements OnClickListener{
 	@Override
 	public void onResume(){
 		super.onResume();
+		//getListView().setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
 	}
 	
 	public void reloadList(Activity activity){
@@ -121,6 +123,7 @@ public class ItemsFragment extends ListFragment implements OnClickListener{
 			mListener.onClearPressed(position);
 			break;
 		case R.id.item_name:
+		case R.id.time_left:
 			mListener.onItemPressed(position);
 			break;
 		}

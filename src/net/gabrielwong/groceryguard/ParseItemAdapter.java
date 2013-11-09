@@ -64,6 +64,8 @@ public class ParseItemAdapter extends ArrayAdapter<ParseObject>{
 		
 		clearButton.setOnClickListener(mItemsFragment);
 		textView.setOnClickListener(mItemsFragment);
+		timeLeft.setOnClickListener(mItemsFragment);
+		imageView.setClickable(false);
 
 		Drawable image = null;
 		try {
