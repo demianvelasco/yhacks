@@ -3,14 +3,15 @@ package net.gabrielwong.groceryguard;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,7 +22,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.googlecode.leptonica.android.Binarize;
@@ -29,6 +29,12 @@ import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.ReadFile;
 import com.googlecode.leptonica.android.WriteFile;
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.parse.FindCallback;
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import eu.janmuller.android.simplecropimage.CropImage;
 
@@ -53,6 +59,8 @@ public class MainActivity extends Activity implements OnClickListener{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		 Parse.initialize(this, "XeSyqoRxoRPE7t1xhs8cQQTKFjnVizRQJj53PdMf", "UEPNUKWiPgoUmJmsE7JEbcRCAH0ddcmYluyTs7dy"); 
+		 ParseAnalytics.trackAppOpened(getIntent());
 		
 		// button for camera
 		final Button button = (Button) findViewById(R.id.cameraButton);
@@ -82,7 +90,7 @@ public class MainActivity extends Activity implements OnClickListener{
 			if (resultCode == RESULT_OK){
 				// TODO Process image
 				Log.v(TAG,"Picture save in:\n" + mImgUri.toString());
-				analyzeImage();
+				onPhotoTaken();
 			} else if (resultCode == RESULT_CANCELED){
 				// TODO User cancelled image capture
 			} else{
@@ -92,7 +100,7 @@ public class MainActivity extends Activity implements OnClickListener{
 			}
 		} else if (requestCode == RC_CROP){
 			if (resultCode == RESULT_OK){
-				analyzeImage();
+				onPhotoTaken();
 			}
 		}
 	}
@@ -137,7 +145,8 @@ public class MainActivity extends Activity implements OnClickListener{
 	}
 	
 	protected void onPhotoTaken(){
-		cropImage();
+		String text = analyzeImage();
+		parseText(text);
 	}
 	
 	private void cropImage(){
@@ -152,7 +161,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		
 	}
 	
-	protected void analyzeImage(){
+	protected String analyzeImage(){
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = 4;
 
@@ -208,7 +217,6 @@ public class MainActivity extends Activity implements OnClickListener{
 		Pix pixs = ReadFile.readBitmap(bitmap);
 		pixs = Binarize.otsuAdaptiveThreshold(pixs);
 		bitmap = WriteFile.writeBitmap(pixs);
-		setImage(bitmap);
 		
 		// Convert to ARGB_8888, required by tess
 		bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -226,15 +234,39 @@ public class MainActivity extends Activity implements OnClickListener{
 		Log.v(TAG, text);
 		
 		baseApi.end();
+		
+		return text;
+	}
+	
+	public void parseText(String text){
+		Log.v(TAG, "Parsing text");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("produceList"); // Query produceList class
+		ArrayList<Integer> plu = new ArrayList<Integer>();
+		String[] words = text.split("[ \n]");
+		for (String s : words){
+			if (s.length() == 4){
+				try{
+					plu.add(Integer.parseInt(s));
+					Log.v(TAG, "Adding int: " + s);
+				} catch(NumberFormatException e){}
+			}
+		}
+		query.whereContainedIn("plu", plu);
+		query.findInBackground(new FindCallback<ParseObject>(){
+			public void done(List<ParseObject> results, ParseException e) {
+			      if (e != null) {
+			        e.printStackTrace();
+			      } else {
+			    	  for (ParseObject obj : results){
+			    		  Log.v(TAG, "PLU: " + Integer.toString(obj.getInt("plu")));
+			    	  }
+			      }
+			}
+		});
 	}
 	
 	public void onClick(View v) {
         // Perform action on click
     	onCameraButton();
     }
-	
-	private void setImage(Bitmap bitmap){
-		((ImageView)findViewById(R.id.imageView)).setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-	}
-
 }
