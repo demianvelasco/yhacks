@@ -13,6 +13,7 @@
     <string name="pref_orange_threshold">Orange Threshold</string>
     <string name="summary_orange_threshold">Items turn orange a set number of days before expiry.</string>
     <string name="title_day_selector">Number of Days</string>
+    <string name="recipe_button">Recipes</string>
 
     <string-array name="day_selector_entries">
         <item>1</item>

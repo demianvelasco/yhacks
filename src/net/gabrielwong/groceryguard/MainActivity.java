@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -22,7 +24,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -72,6 +73,10 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 	private MainMenuFragment mMainMenuFragment = null;
 	private ItemsFragment mItemsFragment = null;
 	private SettingsFragment mSettingsFragment = null;
+	
+	protected static final String RECIPE_URL_BASE = "http://www.yummly.com/recipes?q=";
+	protected static final String INGREDIENT_PREFIX = "&allowedIngredient=";
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 		mSettingsFragment = new SettingsFragment();
 
 		switchToFragment(mMainMenuFragment, false);
+		updateInventory(false);
 	}		
 
 	@Override
@@ -291,6 +297,10 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 	@Override
 	public void onItemsButton() {
 		Log.v(TAG, "Items button pressed");
+		updateInventory(true);
+	}
+	
+	public void updateInventory(final boolean switchToInventory){
 		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(INVENTORY_DB);
 		query.addAscendingOrder(DATE_EXPIRING);
 		// Get items in inventory
@@ -301,7 +311,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 				inventory = inventoryValues;
 				if (e != null)
 					return;
-				ArrayList<Integer> plu = new ArrayList<Integer>();
+				Set<Integer> plu = new HashSet<Integer>();
 				for (ParseObject item : inventoryValues){
 					plu.add(item.getInt(PLU));
 				}
@@ -321,7 +331,8 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 							objMap.put(plu, obj);
 						}
 						
-						switchToFragment(mItemsFragment, true);
+						if (switchToInventory)
+							switchToFragment(mItemsFragment, true);
 						mItemsFragment.setItems(inventoryValues, objMap);
 					}
 
@@ -371,5 +382,29 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener,
 	@Override
 	public void onSettingsButton(){
 		switchToFragment(mSettingsFragment, true);
+	}
+	
+	@Override
+	public void onRecipeButton(){
+		// TODO fix concurrency
+		if (inventory == null){
+			updateInventory(false);
+		}
+		Set<Integer> plu = new HashSet<Integer>();
+		for (ParseObject obj : inventory){
+			plu.add(obj.getInt(PLU));
+		}
+		HashMap<Integer,ParseObject> objMap = mItemsFragment.getObjMap();
+		StringBuilder s = new StringBuilder(RECIPE_URL_BASE);
+		for (int i : plu){
+			s.append(INGREDIENT_PREFIX);
+			ParseObject obj = objMap.get(i);
+			s.append(obj.getString(ITEM_NAME).toLowerCase());
+		}
+		String path = s.toString();
+		Log.v(TAG, "Visiting " + path);
+		Uri uri = Uri.parse(path);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+		startActivity(intent);
 	}
 }
