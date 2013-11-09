@@ -37,7 +37,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-public class MainActivity extends Activity implements MainMenuFragment.Listener{
+public class MainActivity extends Activity implements MainMenuFragment.Listener, ItemsFragment.Listener{
 
 	private static final String TAG = "MainActivity";
 
@@ -57,6 +57,8 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 			INVENTORY_DB = "Inventory";
 
 	private static final long MILLIS_IN_DAY = 86400000L;
+	
+	private List<ParseObject> inventory = null;
 
 	public static final String DATA_PATH = Environment
 			.getExternalStorageDirectory().toString() + "/GroceryCart/";
@@ -293,6 +295,7 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 			@Override
 			public void done(final List<ParseObject> inventoryValues, ParseException e) {
 				Log.v(TAG, "Found " + inventoryValues.size() + " items in inventory");
+				inventory = inventoryValues;
 				if (e != null)
 					return;
 				ArrayList<Integer> plu = new ArrayList<Integer>();
@@ -310,27 +313,40 @@ public class MainActivity extends Activity implements MainMenuFragment.Listener{
 							return;
 						HashMap<Integer, ParseObject> objMap = new HashMap<Integer, ParseObject>();
 						
-						HashMap<Integer, ParseObject> oldMap = mItemsFragment.getObjMap();
-						boolean shouldUpdate = (oldMap == null);
 						for (ParseObject obj : infoValues){
 							int plu = obj.getInt(PLU);
-							if (!shouldUpdate){
-								if (oldMap.get(plu) == null)
-									shouldUpdate = true;
-							}
 							objMap.put(plu, obj);
 						}
 						
 						switchToFragment(mItemsFragment, true);
-						
-						if (shouldUpdate){
-							ParseObject[] items = inventoryValues.toArray(new ParseObject[inventoryValues.size()]);
-							mItemsFragment.setItems(items, objMap);
-						}
+						mItemsFragment.setItems(inventoryValues, objMap);
 					}
 
 				});
 			}
 		});
+	}
+	
+	private void removeFromInventory(int position){
+		inventory.get(position).deleteInBackground();
+		inventory.remove(position);
+		mItemsFragment.setItems(inventory, mItemsFragment.getObjMap());
+		mItemsFragment.reloadList(this);
+	}
+
+	@Override
+	public void onClearPressed(int position) {
+		if (inventory == null){
+			Log.e(TAG, "Inventory is null.");
+			return;
+		}
+		if (position < inventory.size())
+			removeFromInventory(position);
+	}
+
+	@Override
+	public void onItemPressed(int position) {
+		// TODO Auto-generated method stub
+		
 	}
 }
